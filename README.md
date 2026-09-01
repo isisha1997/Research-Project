@@ -53,9 +53,53 @@ python -m mii_guide verify guides/
 | `mii-guide build PATH... --out DIR [--format md,html,json] [--audience public]` | verify, then render |
 | `mii-guide new SLUG` | scaffold a guide spec |
 | `mii-guide sources PATH... [--tier company]` | audit what the guide rests on |
+| `mii-guide audit DOC... [--online] [--json] [--facts-only]` | check the citations in a document you already have |
 
 `--online` resolves DOIs against Crossref and probes URLs. Results are cached in
 `.mii-guide-cache.json` for 30 days, so reruns are fast and reproducible offline.
+
+## Auditing a document you already have
+
+The gates above apply to guides built by this pipeline. For a finished document —
+a Word report, a Markdown draft, a PDF — `audit` checks its citations in place:
+
+```bash
+mii-guide audit report.docx --online
+```
+
+It extracts every DOI and URL (including Word hyperlink targets, whose display
+text may read only "the study"), resolves each one, and reports what it finds.
+Reads `.md`, `.txt`, `.html`, `.docx`, and `.pdf`.
+
+**Findings come in two classes, and the report never blurs them:**
+
+- **fact** — established by resolving the reference. A DOI Crossref has never heard
+  of is a fact about the DOI, not an opinion about the document.
+- **heuristic** — a pattern worth a human's attention, which may be a false alarm:
+  a figure with no nearby citation, a reference line describing a different work
+  from the one its DOI resolves to, a domain the tool cannot tier.
+
+`--facts-only` hides the heuristics. Errors exit 1.
+
+### What audit does not do
+
+It does not judge whether a sentence needs a citation. That is a reading task, not
+a mechanical one, and dressing up a judgment call as a gate result would make the
+gate results worth less. For that half, hand the document over in conversation —
+the claims get extracted by reading, and the extraction is labelled as such.
+
+### Extraction confidence is reported, always
+
+A tool that quietly reads half a PDF and reports no problems is worse than one
+that refuses. Every extractor returns its confidence, and `audit` prints it:
+
+- `full` — the whole text was recovered (`.md`, `.html`, `.docx`).
+- `best_effort` — some of the document may not have been read. Without `pypdf`
+  installed, PDFs are read by inflating streams and scraping link annotations,
+  which misses unusual encodings and anything in a scanned image.
+
+On a best-effort read the report says so explicitly: **a clean result is not proof
+of a clean document.** Install `pypdf`, or export to `.docx`, for a full read.
 
 ## Writing a guide
 
@@ -150,7 +194,7 @@ marked *not yet checked online*.
 python -m unittest discover -s tests -t tests
 ```
 
-136 tests, no third-party test dependency. Network access is faked in tests, so the
+186 tests, no third-party test dependency. Network access is faked in tests, so the
 suite runs offline and deterministically.
 
 ### Layout
@@ -161,10 +205,12 @@ mii_guide/
   loader.py    YAML/JSON specs -> Guide, with errors that name the file
   resolve.py   Crossref + HTTP citation resolution, cached
   verify.py    the four gates
+  extract.py   text and references out of .md/.html/.docx/.pdf, with confidence
+  audit.py     citation audit for documents this pipeline did not build
   render.py    Markdown and HTML output in MII brand colours
-  cli.py       verify / build / new / sources
+  cli.py       verify / build / new / sources / audit
 guides/        guide specs
-tests/         136 tests
+tests/         186 tests
 .claude/skills/material-education-guide/   Claude Code skill wrapper
 ```
 

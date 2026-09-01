@@ -5,6 +5,7 @@
     mii-guide build guides/recycled-polyester.yaml --out dist/ --online
     mii-guide new bio-based-leather          # scaffold a new spec
     mii-guide sources guides/ --tier company # audit what rests on marketing
+    mii-guide audit report.docx --online     # check an existing document's citations
 
 Exit codes: 0 clean, 1 verification errors, 2 bad input or usage.
 """
@@ -16,6 +17,8 @@ import json
 import sys
 from pathlib import Path
 
+from .audit import audit as audit_document
+from .extract import SUPPORTED, ExtractionError
 from .loader import GuideLoadError, discover, load_guide
 from .models import Audience, SourceTier
 from .render import render_html, render_markdown
@@ -78,6 +81,21 @@ def build_parser() -> argparse.ArgumentParser:
     sources_cmd.add_argument("paths", nargs="+", help="guide files or directories")
     sources_cmd.add_argument("--tier", help="show only this tier (e.g. company, peer_reviewed)")
     sources_cmd.set_defaults(handler=cmd_sources)
+
+    audit_cmd = sub.add_parser(
+        "audit",
+        help="check the citations in an existing document (.md/.docx/.pdf/.html)",
+    )
+    audit_cmd.add_argument("paths", nargs="+", help="documents to audit")
+    audit_cmd.add_argument("--online", action="store_true",
+                           help="resolve DOIs against Crossref and probe URLs over HTTP")
+    audit_cmd.add_argument("--cache", default=str(DEFAULT_CACHE), help="citation cache file")
+    audit_cmd.add_argument("--no-cache", action="store_true",
+                           help="ignore and do not write the cache")
+    audit_cmd.add_argument("--json", action="store_true", help="emit the report as JSON")
+    audit_cmd.add_argument("--facts-only", action="store_true",
+                           help="hide heuristic flags and show only established problems")
+    audit_cmd.set_defaults(handler=cmd_audit)
 
     return parser
 
@@ -176,6 +194,53 @@ def cmd_sources(args: argparse.Namespace) -> int:
     for row in rows:
         print(f"{row[0]:<{widths[0]}}  {row[1]:<{widths[1]}}  {row[2]:<{widths[2]}}  {row[3]}")
     return 0
+
+
+def cmd_audit(args: argparse.Namespace) -> int:
+    cache = None if args.no_cache else Path(args.cache)
+    resolver = CitationResolver(online=args.online, cache_path=cache)
+    reports = []
+    for raw in args.paths:
+        try:
+            reports.append(audit_document(Path(raw), resolver))
+        except ExtractionError as exc:
+            print(f"error: {exc}", file=sys.stderr)
+            return 2
+
+    if args.json:
+        print(json.dumps([r.to_dict() for r in reports], indent=2))
+    else:
+        for report in reports:
+            _print_audit(report, facts_only=args.facts_only)
+    return 1 if any(r.errors for r in reports) else 0
+
+
+def _print_audit(report, facts_only: bool) -> None:
+    summary = report.summary()
+    state = "CLEAN" if report.clean else "PROBLEMS"
+    print(f"{state}  {summary['document']}  —  {summary['references']} references "
+          f"({summary['dois']} DOIs, {summary['urls']} URLs), "
+          f"{summary['errors']} errors, {summary['warnings']} warnings")
+
+    if summary["extraction"] != "full":
+        print("  ! extraction was best-effort: a clean result here is not proof of a "
+              "clean document")
+    if not report.online:
+        print("  ! offline run: references were checked for shape only, not resolved")
+
+    for finding in report.findings:
+        if facts_only and finding.kind != "fact":
+            continue
+        location = f" (line {finding.line})" if finding.line else ""
+        print(f"  {finding}{location}")
+        if finding.hint and finding.severity != "info":
+            print(f"        → {finding.hint}")
+
+    tiers = summary["tiers"]
+    if tiers:
+        print("  tiers (inferred from domain, confirm by hand): "
+              + ", ".join(f"{k}={v}" for k, v in tiers.items()))
+    print()
 
 
 # -- plumbing ---------------------------------------------------------------
