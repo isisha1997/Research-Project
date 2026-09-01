@@ -1,0 +1,180 @@
+# What the evidence says about recycled polyester (rPET) in apparel.
+# Every sentence in the published guide is generated from the claims below.
+#
+# STATUS: worked example. The references below are real to the best of the
+# author's knowledge, but the online citation gate has NOT been run against
+# them - this repository was built in a sandbox whose egress policy blocks
+# api.crossref.org. No `accessed:` date is set on any source, because no
+# human has confirmed one yet; the verifier reports that as an INFO finding,
+# which is the correct behaviour. Before this guide is published, run:
+#
+#     mii-guide verify guides/recycled-polyester.yaml --online
+#
+# and add `accessed:` dates only for sources a person has actually opened.
+
+slug: recycled-polyester
+title: "Recycled Polyester: What the Evidence Actually Supports"
+material: "Recycled polyester (rPET) in apparel and footwear"
+summary: >
+  Recycled polyester lowers the energy and greenhouse-gas cost of making
+  polyester fibre compared with virgin polyester, and that finding is well
+  supported. It does not make a garment biodegradable, it does not stop
+  microfibre shedding, and almost none of it comes from old clothing. The
+  gap between what the fibre does and what the marketing implies is where
+  most of the confusion sits.
+updated: "2026-09-01"
+reviewers: []
+
+section_order:
+  - What it is
+  - Environmental performance
+  - What it does not do
+  - Trade-offs and open questions
+
+sources:
+  - id: napper-thompson-2016
+    tier: peer_reviewed
+    title: "Release of synthetic microplastic plastic fibres from domestic washing machines: Effects of fabric type and washing conditions"
+    authors: ["Napper, I.E.", "Thompson, R.C."]
+    year: 2016
+    container: "Marine Pollution Bulletin"
+    doi: "10.1016/j.marpolbul.2016.09.025"
+
+  - id: de-falco-2018
+    tier: peer_reviewed
+    title: "Evaluation of microplastic release caused by textile washing processes of synthetic fabrics"
+    authors: ["De Falco, F.", "Gullo, M.P.", "Gentile, G."]
+    year: 2018
+    container: "Environmental Pollution"
+    doi: "10.1016/j.envpol.2017.10.057"
+
+  - id: ellen-macarthur-2017
+    tier: institutional
+    title: "A New Textiles Economy: Redesigning Fashion's Future"
+    authors: ["Ellen MacArthur Foundation"]
+    year: 2017
+    container: "Ellen MacArthur Foundation"
+    url: "https://www.ellenmacarthurfoundation.org/a-new-textiles-economy"
+
+  - id: eu-green-claims-2023
+    tier: regulator
+    title: "Proposal for a Directive on substantiation and communication of explicit environmental claims (Green Claims Directive)"
+    authors: ["European Commission"]
+    year: 2023
+    container: "European Commission"
+    url: "https://environment.ec.europa.eu/publications/proposal-directive-green-claims_en"
+
+  - id: textile-exchange-mmr
+    tier: institutional
+    title: "Materials Market Report"
+    authors: ["Textile Exchange"]
+    year: 2024
+    container: "Textile Exchange"
+    url: "https://textileexchange.org/knowledge-center/reports/materials-market-report-2024/"
+
+claims:
+  - id: what-it-is
+    section: What it is
+    statement: >
+      Recycled polyester is polyethylene terephthalate recovered from post-consumer
+      waste - overwhelmingly beverage bottles - and reprocessed into filament or
+      staple fibre, chemically near-identical to virgin polyester.
+    plain: >
+      Recycled polyester is plastic from used bottles, melted down and spun into
+      thread. The finished fibre is essentially the same plastic as new polyester.
+    scope: "Mechanically recycled rPET, the dominant commercial route"
+    sources: [textile-exchange-mmr, ellen-macarthur-2017]
+    audiences: [public, industry, technical]
+
+  - id: feedstock-origin
+    section: What it is
+    statement: >
+      The feedstock for apparel rPET comes almost entirely from the bottle stream
+      rather than from discarded textiles; textile-to-textile recycling remains a
+      small share of recycled fibre supply.
+    plain: >
+      Almost none of it is made from old clothes. It is nearly all made from bottles.
+    scope: "Global recycled polyester fibre supply"
+    sources: [textile-exchange-mmr, ellen-macarthur-2017]
+    audiences: [public, industry, technical]
+
+  - id: energy-ghg
+    section: Environmental performance
+    statement: >
+      Producing fibre from recycled PET avoids the polymerisation of virgin resin
+      from petrochemical feedstock, which is the largest single energy input in
+      polyester fibre production.
+    plain: >
+      Making fibre from bottles skips the most energy-hungry step in making new
+      polyester, so it takes less energy.
+    scope: "Cradle-to-gate fibre production only; excludes dyeing, garment manufacture, and use phase"
+    sources: [ellen-macarthur-2017]
+    audiences: [public, industry, technical]
+
+  - id: microfibre-shedding
+    section: What it does not do
+    statement: >
+      Synthetic textiles release microfibres during domestic laundering, with
+      measured release varying by fabric construction and wash conditions;
+      recycled feedstock does not change this behaviour, because the polymer is
+      the same.
+    plain: >
+      Clothes made from it still shed tiny plastic fibres in the wash. Using
+      recycled plastic instead of new plastic does not change that.
+    scope: "Domestic washing of polyester fabrics; release rates differ by fabric type"
+    sources: [napper-thompson-2016, de-falco-2018]
+    audiences: [public, industry, technical]
+
+  - id: not-biodegradable
+    section: What it does not do
+    statement: >
+      Recycled polyester is not biodegradable and does not become so through
+      recycling; end-of-life behaviour is that of the parent polymer.
+    plain: >
+      It does not break down naturally. Recycling does not change what happens
+      to it when it is thrown away.
+    scope: "End-of-life behaviour of PET fibre"
+    sources: [ellen-macarthur-2017]
+    audiences: [public, industry, technical]
+
+  - id: claims-substantiation
+    section: Trade-offs and open questions
+    statement: >
+      EU policy is moving to require that explicit environmental claims be
+      substantiated with evidence before they are communicated, which raises the
+      evidentiary bar for recycled-content marketing.
+    plain: >
+      European rules are tightening: a brand will need evidence for green claims
+      before it makes them.
+    scope: "EU jurisdiction; proposal stage at time of writing"
+    sources: [eu-green-claims-2023]
+    audiences: [industry, technical]
+
+  - id: circularity-supports
+    section: Trade-offs and open questions
+    topic: "does bottle-to-textile recycling advance circularity"
+    stance: supports
+    statement: >
+      Diverting PET bottles into fibre displaces virgin polymer demand in the
+      textile sector, which is the argument for treating rPET as a circularity gain.
+    plain: >
+      One view: using bottles for clothing means less new plastic gets made for
+      clothing.
+    scope: "Textile sector viewed in isolation"
+    sources: [textile-exchange-mmr]
+    audiences: [public, industry, technical]
+
+  - id: circularity-refutes
+    section: Trade-offs and open questions
+    topic: "does bottle-to-textile recycling advance circularity"
+    stance: refutes
+    statement: >
+      Bottle-to-textile recycling removes PET from a closed bottle-to-bottle loop
+      and moves it into a textile stream with no established recycling route, so
+      the material is downcycled once rather than kept in circulation.
+    plain: >
+      The other view: bottles can be recycled into bottles again and again, but
+      once a bottle becomes a T-shirt it usually cannot be recycled again.
+    scope: "Whole-system view across bottle and textile streams"
+    sources: [ellen-macarthur-2017]
+    audiences: [public, industry, technical]

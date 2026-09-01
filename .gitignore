@@ -1,0 +1,7 @@
+__pycache__/
+*.py[cod]
+.mii-guide-cache.json
+dist/
+build/
+*.egg-info/
+.venv/
