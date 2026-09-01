@@ -125,10 +125,21 @@ class CitationResolver:
         self.stats.checked += 1
         locator = source.locator
 
+        if source.is_registered:
+            # A standards designation cannot be resolved over the network. Saying so
+            # is the honest answer; the tiering gate then requires that a person can
+            # still get to the text.
+            return Resolution(
+                source.id, source.designation, ok=True, status="registered",
+                detail=f"identified by designation {source.designation!r}; no machine "
+                       "can follow this, so it is auditable only via the held copy",
+            )
+
         if not locator:
             return Resolution(
                 source.id, None, ok=False, status="malformed",
-                detail="source has neither a DOI nor a URL, so nothing can be verified",
+                detail="source has neither a DOI, a URL, nor a standards designation, "
+                       "so nothing can be verified",
             )
 
         if source.doi and not is_doi(source.doi):

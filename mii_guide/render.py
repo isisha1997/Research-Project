@@ -124,7 +124,8 @@ def render_markdown(report: VerificationReport, audience: Audience | None = None
     for number, source in numbering.ordered(guide):
         resolution = report.resolutions.get(source.id)
         mark = _resolution_mark(resolution)
-        out.append(f"{number}. **[{source.tier.label}]** {source.citation()} {mark}")
+        held = f" · held: {source.held}" if source.held else ""
+        out.append(f"{number}. **[{source.tier.label}]** {source.citation()}{held} {mark}")
     out.append("")
 
     out.append(_markdown_method(report))
@@ -133,7 +134,8 @@ def render_markdown(report: VerificationReport, audience: Audience | None = None
 
 def _markdown_claim(guide: Guide, claim: Claim, audience: Audience, numbering: Numbering) -> str:
     refs = "".join(f"[{numbering.of(s)}]" for s in claim.sources if numbering.of(s))
-    line = f"- {claim.text_for(audience)} {refs}".rstrip()
+    withheld = " **[figure withheld pending confirmation]**" if claim.status == "withheld" else ""
+    line = f"- {claim.text_for(audience)}{withheld} {refs}".rstrip()
     if audience is not Audience.PUBLIC:
         tier = guide.strongest_tier(claim)
         meta: list[str] = []
@@ -213,6 +215,8 @@ def _resolution_mark(resolution) -> str:
         return ""
     if resolution.status == "resolved" and not resolution.metadata_conflict:
         return "✓ resolved"
+    if resolution.status == "registered":
+        return "◆ registered - held copy, not machine-checkable"
     if resolution.status == "unchecked":
         return "· not yet checked online"
     return f"⚠ {resolution.status.replace('_', ' ')}"
@@ -322,6 +326,8 @@ def _html_claim(guide: Guide, claim: Claim, audience: Audience, numbering: Numbe
         for s in claim.sources if numbering.of(s)
     )
     tier = guide.strongest_tier(claim)
+    withheld = ('<span class="withheld">figure withheld pending confirmation</span>'
+                if claim.status == "withheld" else "")
     meta = ""
     if audience is not Audience.PUBLIC:
         bits = []
@@ -332,7 +338,7 @@ def _html_claim(guide: Guide, claim: Claim, audience: Audience, numbering: Numbe
         if bits:
             meta = f"<div class=\"meta\">{' '.join(bits)}</div>"
     return (f"<li><span class=\"statement\">{esc(claim.text_for(audience))}</span> "
-            f"<span class=\"refs\">{refs}</span>{meta}</li>")
+            f"{withheld} <span class=\"refs\">{refs}</span>{meta}</li>")
 
 
 def _html_method(report: VerificationReport) -> str:
@@ -448,6 +454,12 @@ a.ref {{
   .chip {{ color: color-mix(in srgb, var(--chip) 60%, #ffffff); }}
 }}
 .scope {{ margin-left: .4rem; }}
+.withheld {{
+  display: inline-block; padding: .05rem .45rem; border-radius: .25rem;
+  background: color-mix(in srgb, var(--amber) 22%, transparent);
+  border: 1px solid var(--amber); font-size: .7rem; font-weight: 700;
+  color: color-mix(in srgb, var(--amber) 70%, var(--ink));
+}}
 .contradiction {{ padding: 1rem 1.25rem; margin: 1rem 0; border-left: 4px solid var(--amber); background: var(--panel); border-radius: 0 .5rem .5rem 0; }}
 .side.for {{ color: var(--sage); }}
 .side.against {{ color: var(--primary); }}

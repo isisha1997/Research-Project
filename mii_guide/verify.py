@@ -141,6 +141,10 @@ class VerificationReport:
             "warnings": len(self.warnings),
             "infos": len(self.infos),
             "contradictions": len([c for c in self.contradictions if c.is_live]),
+            "registered_sources": sum(
+                1 for s in self.guide.sources.values() if s.is_registered),
+            "withheld_claims": sum(
+                1 for c in self.guide.claims if c.status == "withheld"),
             "tiers": {t.name.lower(): n for t, n in self.tier_distribution().items()},
         }
 
@@ -202,6 +206,14 @@ def check_coverage(guide: Guide) -> list[Finding]:
                     hint=f"add {source_id!r} to the sources list, or correct the reference",
                 ))
 
+        if claim.status == "withheld":
+            findings.append(Finding(
+                Gate.COVERAGE, Severity.INFO,
+                "claim is published with its figure withheld pending confirmation",
+                subject=claim.id,
+                hint="confirm the value from the held text, then set status: published",
+            ))
+
         if not claim.scope:
             findings.append(Finding(
                 Gate.COVERAGE, Severity.INFO,
@@ -253,6 +265,25 @@ def check_citations(
                 Gate.CITATIONS, Severity.ERROR, resolution.detail, subject=source_id,
                 hint="correct the stored title or year to match the registry record",
             ))
+        elif resolution.status == "registered":
+            source = guide.sources[source_id]
+            if not source.held:
+                findings.append(Finding(
+                    Gate.CITATIONS, Severity.ERROR,
+                    f"{source.designation} cannot be resolved by machine and does not say "
+                    "where the controlled copy is held",
+                    subject=source_id,
+                    hint="add `held:` naming who holds the purchased text and when it was "
+                         "obtained; an unresolvable source with no custody trail is not a "
+                         "citation, it is a claim about a citation",
+                ))
+            else:
+                findings.append(Finding(
+                    Gate.CITATIONS, Severity.INFO,
+                    f"{source.designation} is a registered source: not machine-checkable, "
+                    f"held at {source.held}",
+                    subject=source_id,
+                ))
         elif resolution.status == "unchecked":
             findings.append(Finding(
                 Gate.CITATIONS, Severity.INFO,
@@ -263,6 +294,8 @@ def check_citations(
 
     for source_id in sorted(cited & set(guide.sources)):
         source = guide.sources[source_id]
+        if source.is_registered:
+            continue  # a held standard has a custody trail instead of an accessed date
         if source.tier is not SourceTier.COMPANY and not source.accessed:
             findings.append(Finding(
                 Gate.CITATIONS, Severity.INFO,

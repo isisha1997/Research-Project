@@ -132,6 +132,8 @@ class Source:
     container: str | None = None          # journal, publisher, or issuing body
     doi: str | None = None
     url: str | None = None
+    designation: str | None = None        # e.g. "ASTM D6571-22" - a paywalled standard
+    held: str | None = None               # where the controlled copy of that text is held
     accessed: str | None = None           # ISO date the source was last checked by a human
     note: str | None = None
 
@@ -150,13 +152,35 @@ class Source:
 
     @property
     def locator(self) -> str | None:
-        """The best machine-checkable handle for this source."""
+        """The best machine-checkable handle for this source.
+
+        A designation is deliberately not a locator: a standard number cannot be
+        resolved over the network, and pretending otherwise would let an
+        unverifiable source pass the citation gate.
+        """
         if self.doi:
             return f"https://doi.org/{self.doi}"
         return self.url
 
+    @property
+    def is_registered(self) -> bool:
+        """A source identified by designation alone.
+
+        Standards bodies sell their texts; ISO 9073-2 has a number, not a URL.
+        Such a source can never be machine-checked, so instead of a locator it
+        must record where the organisation's controlled copy is held - which is
+        what makes the citation auditable by a person even though no machine
+        can follow it.
+        """
+        return bool(self.designation) and not self.doi and not self.url
+
     def citation(self) -> str:
         """Human-readable reference line."""
+        if self.is_registered:
+            line = f"{self.designation}. {self.title.rstrip('.')}"
+            if self.container:
+                line += f". {self.container}"
+            return line
         bits: list[str] = []
         if self.authors:
             if len(self.authors) > 3:
@@ -167,14 +191,16 @@ class Source:
         bits.append(self.title.rstrip("."))
         if self.container:
             bits.append(self.container)
-        line = ". ".join(b for b in bits if b)
+        # "Surname, A. et al." already ends in a period; joining on ". " would double it.
+        line = ". ".join(b.rstrip(".") if b.endswith("et al.") else b for b in bits if b)
         if self.locator:
             line = f"{line}. {self.locator}"
         return line
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Source":
-        known = {f for f in ("id", "tier", "title", "year", "authors", "container", "doi", "url", "accessed", "note")}
+        known = {"id", "tier", "title", "year", "authors", "container", "doi", "url",
+                 "designation", "held", "accessed", "note"}
         unknown = set(data) - known
         if unknown:
             raise ValueError(f"source {data.get('id')!r}: unknown field(s): {', '.join(sorted(unknown))}")
@@ -190,6 +216,8 @@ class Source:
             container=data.get("container"),
             doi=data.get("doi"),
             url=data.get("url"),
+            designation=data.get("designation"),
+            held=data.get("held"),
             accessed=data.get("accessed"),
             note=data.get("note"),
         )
@@ -213,6 +241,7 @@ class Claim:
     scope: str | None = None              # the qualifier that keeps the claim honest
     section: str = "Findings"
     audiences: list[Audience] = field(default_factory=lambda: list(Audience))
+    status: str = "published"             # published | withheld
 
     def __post_init__(self) -> None:
         if not self.id or not str(self.id).strip():
@@ -226,6 +255,12 @@ class Claim:
         self.stance = Stance.parse(self.stance)
         self.sources = [str(s).strip() for s in (self.sources or []) if str(s).strip()]
         self.audiences = [Audience.parse(a) for a in (self.audiences or list(Audience))]
+        self.status = str(self.status or "published").strip().lower()
+        if self.status not in {"published", "withheld"}:
+            raise ValueError(
+                f"claim {self.id!r}: status must be 'published' or 'withheld', "
+                f"not {self.status!r}"
+            )
         if self.topic:
             self.topic = str(self.topic).strip().lower()
 
@@ -236,7 +271,8 @@ class Claim:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Claim":
-        known = {"id", "statement", "sources", "plain", "topic", "stance", "scope", "section", "audiences"}
+        known = {"id", "statement", "sources", "plain", "topic", "stance", "scope",
+                 "section", "audiences", "status"}
         unknown = set(data) - known
         if unknown:
             raise ValueError(f"claim {data.get('id')!r}: unknown field(s): {', '.join(sorted(unknown))}")
@@ -250,6 +286,7 @@ class Claim:
             scope=data.get("scope"),
             section=data.get("section") or "Findings",
             audiences=data.get("audiences") or list(Audience),
+            status=data.get("status") or "published",
         )
 
 

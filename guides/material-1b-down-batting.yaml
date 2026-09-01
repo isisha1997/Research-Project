@@ -1,0 +1,635 @@
+# MII Material Testing Reference Guide — Material 1b, Down Batting / Sheet.
+#
+# This is the Material 1b guide expressed as claims rather than prose. The
+# published document is generated from the claims below, so no sentence can
+# reach the page without its sources attached.
+#
+# It applies the 2026-08-12 citation audit rather than reproducing the draft:
+#   - AUDIT 1.4-09/1.4-10  attributions corrected; the AUTEX paper carries its DOI.
+#   - AUDIT 1.4-03         ISO 9073-2 bulky-nonwoven pressure is 0.02 kPa, not 0.5 kPa.
+#   - AUDIT 1.4-07         the GB/T bulkiness ladder is `status: withheld` - the claim
+#                          is made, the figure is not printed, per the guide's own rule.
+#   - AUDIT 1.1-03         the resilience ranges (80-95 / 25-60 / 70-80%) and the
+#                          needle-punch gap are ABSENT. Their sources could not be
+#                          located, and a claim with no findable source cannot be
+#                          written here at all. That is the point of the format.
+#   - AUDIT 1.1-20, 1.3-05 IDFL-attributed claims are withheld until a document is named.
+#   - AUDIT 1.5-14         the 40-75% moisture figure is withheld pending chapter/page.
+#
+# STATUS: the online citation gate has NOT been run. Build this on a network that
+# can reach Crossref before treating any DOI below as confirmed.
+
+slug: material-1b-down-batting
+title: "Material 1b — Down Batting / Sheet: Testing Reference"
+material: "Down batting and down sheet for duvets, sleeping bags, and insulated apparel"
+summary: >
+  Five tests describe whether a down batting will stay warm in use: how well it
+  springs back after compression, whether it holds its dimensions through washing,
+  whether it contains the fill weight it claims, how thick it is, and how much heat
+  it actually resists. No international standard sets a universal pass mark for any
+  of them. Where this guide prints a number, it says whether that number comes from
+  a standard, from published research, or from industry practice — and where the
+  evidence is not good enough, it prints no number at all.
+updated: "2026-09-01"
+reviewers: []
+
+section_order:
+  - Test 1.1 — Compressibility & Recovery
+  - Test 1.2 — Dimensional Stability to Washing
+  - Test 1.3 — Fill Density
+  - Test 1.4 — Loft / Thickness
+  - Test 1.5 — Thermal Resistance
+  - How to read the thresholds
+
+sources:
+
+  # --- Standards: identified by designation, resolvable by no machine ---------
+  - id: astm-d6571
+    tier: regulator
+    designation: "ASTM D6571-22"
+    title: "Standard Test Methods for Determination of Compression and Recovery of Highloft Batting"
+    container: "ASTM International"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: iso-9073-2
+    tier: regulator
+    designation: "ISO 9073-2:1995"
+    title: "Textiles — Test methods for nonwovens — Part 2: Determination of thickness"
+    container: "International Organization for Standardization"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: iso-9073-1
+    tier: regulator
+    designation: "ISO 9073-1:2023"
+    title: "Textiles — Test methods for nonwovens — Part 1: Determination of mass per unit area"
+    container: "International Organization for Standardization"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: iso-6330
+    tier: regulator
+    designation: "ISO 6330:2021"
+    title: "Textiles — Domestic washing and drying procedures for textile testing"
+    container: "International Organization for Standardization"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: iso-11092
+    tier: regulator
+    designation: "ISO 11092:2026"
+    title: >
+      Textiles — Physiological effects — Measurement of thermal and water-vapour
+      resistance under steady-state conditions (sweating guarded-hotplate test)
+    container: "International Organization for Standardization"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: astm-f1868
+    tier: regulator
+    designation: "ASTM F1868-23"
+    title: >
+      Standard Test Method for Thermal and Evaporative Resistance of Clothing Materials
+      Using a Sweating Hot Plate
+    container: "ASTM International"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: astm-d5736
+    tier: regulator
+    designation: "ASTM D5736-95(2001), withdrawn 2008"
+    title: "Standard Test Method for Thickness of Highloft Nonwoven Fabrics"
+    container: "ASTM International"
+    held: "MII standards register — withdrawn text, retained for datasheet interpretation"
+
+  - id: gbt-14272
+    tier: regulator
+    designation: "GB/T 14272-2021"
+    title: "Down garments"
+    container: "Standardization Administration of China"
+    held: "MII standards register — purchase required; Annex letter and values UNCONFIRMED"
+
+  - id: gbt-24252
+    tier: regulator
+    designation: "GB/T 24252-2019"
+    title: "Silk quilts"
+    container: "Standardization Administration of China"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: tctca-10
+    tier: regulator
+    designation: "T/CTCA 10-2021"
+    title: "Washable PLA/cotton composite wadding"
+    container: "China Textile Commerce Association"
+    held: "MII standards register — full text held"
+
+  - id: iso-2859-1
+    tier: regulator
+    designation: "ISO 2859-1"
+    title: "Sampling procedures for inspection by attributes — Part 1: Sampling schemes indexed by AQL"
+    container: "International Organization for Standardization"
+    held: "MII standards register — purchase and archive reference required"
+
+  - id: idfb-part19
+    tier: institutional
+    designation: "IDFB Testing Regulations Part 19"
+    title: "Compression and recovery of loose fillings (down or synthetic)"
+    container: "International Down and Feather Bureau"
+    held: "MII standards register — purchase and archive reference required"
+
+  # --- Peer-reviewed: the two the audit verified -----------------------------
+  - id: glombikova-2020
+    tier: peer_reviewed
+    title: >
+      Study of the effect of dynamic compression on the thermal insulation properties
+      of high-loft nonwoven insulations
+    authors: ["Glombikova, V.", "Komarkova, P.", "Hercikova, E.", "Havelka, A."]
+    year: 2020
+    container: "AUTEX Research Journal 20(3):338–343"
+    doi: "10.2478/aut-2019-0015"
+    note: >
+      Attribution corrected per AUDIT 1.4-10; the draft credited Zhu, Kremenakova,
+      Wang & Militky, who appear only in this paper's reference list.
+
+  - id: yu-2026
+    tier: peer_reviewed
+    title: "Effect of humidity on the thermal properties of down fillings"
+    authors: ["Yu, et al."]
+    year: 2026
+    container: "Journal of the Textile Institute, online 18 January 2026"
+    doi: "10.1080/00405000.2026.2615639"
+    note: >
+      DOI supplied and findings verified by the 2026-08-12 audit. Author order still
+      to be confirmed — 'Yu' is the corresponding author, not necessarily the first.
+
+  # --- Peer-reviewed, verified by a person but not yet machine-followable ----
+  - id: kim-2018
+    tier: peer_reviewed
+    designation: "IJCST 30(3):428–443 (2018)"
+    title: "Comparative laundering durability of down and synthetic insulation fills"
+    authors: ["Kim, S.", "Kim, E.", "Park, Y."]
+    year: 2018
+    container: "International Journal of Clothing Science and Technology"
+    held: >
+      Verified by MII citation audit 2026-08-12 (AUDIT 1.2-21). Findable by a person
+      from the volume and pages; DOI still to be added.
+
+  - id: zheng-2024
+    tier: peer_reviewed
+    designation: "International Journal of Thermal Sciences, online November 2024"
+    title: "Modelling of thermal resistance in down quilts"
+    authors: ["Zheng", "Wang", "Ke"]
+    year: 2024
+    held: >
+      Attribution corrected per AUDIT 1.4-09; the draft credited 'Zhou et al.'.
+      Findings verify nearly verbatim per the audit. DOI still to be added.
+
+  # --- Company: present, but never carrying a claim alone --------------------
+  - id: 3m-fl600
+    tier: company
+    title: "Thinsulate Featherless Insulation FL600 Technical Data Sheet"
+    authors: ["3M"]
+    year: 2016
+    container: "3M, August 2016"
+    designation: "3M TDS, Thinsulate Featherless FL600, August 2016"
+    held: "MII source register — archive the PDF; manufacturer figures, not independently verified"
+
+claims:
+
+  # ============================ TEST 1.1 ====================================
+  - id: t11-what
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      Compressibility and recovery testing compresses a conditioned specimen under a
+      defined load, removes it, and compares recovered thickness against original
+      thickness; ASTM D6571 provides two options, a shorter acceptance-testing route
+      and a fuller multi-reading route for development and dispute resolution.
+    plain: >
+      The test squashes the batting under a set weight, takes the weight off, and
+      measures how well it springs back. There is a quick version for checking
+      shipments and a longer version for development work and settling arguments.
+    scope: "ASTM D6571; thickness measured per ISO 9073-2"
+    sources: [astm-d6571, iso-9073-2]
+
+  - id: t11-no-universal-threshold
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      ASTM D6571 states that compression and recovery requirements vary by end-use
+      application and sets no pass mark; no reviewed international standard defines a
+      universal recovery percentage for down or synthetic batting.
+    plain: >
+      There is no official pass mark. The standard tells you how to run the test, not
+      what score is good enough — that depends on what the batting is for.
+    scope: "Method standards reviewed for this guide; national product standards may differ"
+    sources: [astm-d6571, iso-9073-2, idfb-part19]
+
+  - id: t11-national-standards-do-set-values
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      National product standards do set numeric wadding requirements even though none
+      applies universally: GB/T 24252-2019 includes compressibility and recovery of
+      wadding as a required internal-quality parameter with a dedicated method in its
+      Annex B.
+    plain: >
+      Some national standards do set numbers — China's silk-quilt standard requires a
+      compression and recovery result — but none of them covers down batting in general.
+    scope: "GB/T 24252-2019 applies to silk quilts, cited here as evidence that numeric requirements exist"
+    sources: [gbt-24252]
+    audiences: [industry, technical]
+
+  - id: t11-cycles
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      Recovery degrades under repeated loading rather than a single compression, so a
+      single-compression figure does not describe behaviour in products that are
+      squashed repeatedly; multi-cycle results should be specified for such uses.
+    plain: >
+      Batting gets worse each time it is squashed, not just the first time. For
+      sleeping bags and packable jackets, ask for results after several squashes,
+      not one.
+    scope: "Dynamic loading of high-loft nonwoven insulation"
+    sources: [glombikova-2020]
+
+  - id: t11-transit
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      Because recovery is calculated against the specimen's own starting thickness, a
+      sample tested while still crushed from shipping reads artificially well; allow a
+      recovery period after unpacking before measuring.
+    plain: >
+      If you test batting straight out of a tight package, the result flatters it. Let
+      it sit and re-loft before measuring.
+    scope: "Applies to any compressed or vacuum-packed shipment"
+    sources: [astm-d6571, 3m-fl600]
+
+  - id: t11-permanent-set
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      Some laboratories report permanent set rather than recovery; the two are
+      complements of one another, so 90% recovery is 10% permanent set.
+    plain: >
+      Some labs report the opposite number. 90% recovery and 10% permanent set mean
+      the same thing.
+    scope: "Reporting convention, not a separate measurement"
+    sources: [astm-d6571]
+
+  - id: t11-two-requirements
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      A specification should state both a thickness target and a minimum recovery
+      percentage, since thickness alone describes delivered loft and not retained loft.
+    plain: >
+      Put two numbers in your contract, not one: how thick it is on arrival, and how
+      much of that thickness it keeps after being squashed.
+    scope: "Buyer specification practice"
+    sources: [astm-d6571, idfb-part19]
+
+  - id: t11-sampling
+    section: Test 1.1 — Compressibility & Recovery
+    statement: >
+      Shipment acceptance should be decided by a published sampling scheme rather than
+      ad-hoc sample counts; ISO 2859-1 indexes sampling plans by acceptance quality limit.
+    plain: >
+      You cannot test everything, so use the international sampling tables to decide
+      how much to test and how many failures to allow.
+    scope: "Attribute sampling; AQL levels are a buyer-seller decision"
+    sources: [iso-2859-1]
+    audiences: [industry, technical]
+
+  # ============================ TEST 1.2 ====================================
+  - id: t12-what
+    section: Test 1.2 — Dimensional Stability to Washing
+    statement: >
+      Dimensional stability testing marks a conditioned specimen, launders it by a
+      defined procedure, reconditions it, and remeasures; ISO 6330 supplies the
+      laundering procedures on which the measurement depends.
+    plain: >
+      The batting is marked, washed by a set procedure, dried, and measured again to
+      see how much it moved.
+    scope: "ISO 6330 procedures; conditioning before and after is part of the method"
+    sources: [iso-6330]
+
+  - id: t12-no-down-limits
+    section: Test 1.2 — Dimensional Stability to Washing
+    statement: >
+      No reviewed published standard sets washing limits specifically for down batting
+      or down sheet; the numeric anchors in this guide are drawn from adjacent wadding
+      and quilt product standards and applied by analogy.
+    plain: >
+      No standard covers washing limits for down batting itself. The numbers here come
+      from standards for similar products and are borrowed, not official.
+    scope: "Standards reviewed as of August 2026"
+    sources: [tctca-10, gbt-24252, gbt-14272]
+
+  - id: t12-tctca
+    section: Test 1.2 — Dimensional Stability to Washing
+    statement: >
+      T/CTCA 10-2021 sets a dimensional deviation limit of ±2.0% for washable
+      PLA/cotton composite wadding, with after-seven-wash recovery and bulkiness
+      requirements graded by class.
+    plain: >
+      One Chinese standard for washable wadding allows the material to change size by
+      no more than 2%, and sets requirements for how it performs after seven washes.
+    scope: "T/CTCA 10-2021 applies to PLA/cotton composite wadding, not to down"
+    sources: [tctca-10]
+    audiences: [industry, technical]
+
+  - id: t12-silk-quilt
+    section: Test 1.2 — Dimensional Stability to Washing
+    statement: >
+      GB/T 24252-2019 sets graded washing dimensional-change limits for silk quilts,
+      assessed only for products labelled as washable.
+    plain: >
+      China's silk-quilt standard sets size-change limits by grade, but only for
+      products sold as washable.
+    scope: "Silk quilts; assessment conditional on a washable label"
+    sources: [gbt-24252]
+    audiences: [industry, technical]
+
+  - id: t12-down-reconditioning
+    section: Test 1.2 — Dimensional Stability to Washing
+    statement: >
+      Down has a slow re-lofting component, so a short recovery window after
+      laundering can under-read true loft and fail acceptable material; specimens
+      should be allowed to recover fully before remeasurement.
+    plain: >
+      Down takes its time to fluff back up. Measure it too soon after washing and good
+      material can look like it failed.
+    scope: "Down fills specifically; synthetic battings recover faster"
+    sources: [idfb-part19, gbt-14272]
+
+  - id: t12-durability-vs-synthetic
+    section: Test 1.2 — Dimensional Stability to Washing
+    statement: >
+      Comparative laundering work reports that natural down insulation deteriorates
+      markedly over ten launderings relative to synthetic fills.
+    plain: >
+      Over about ten washes, down loses more of its insulating performance than
+      synthetic fills do.
+    scope: "Ten laundering cycles under the study's protocol"
+    sources: [kim-2018]
+
+  # ============================ TEST 1.3 ====================================
+  - id: t13-what
+    section: Test 1.3 — Fill Density
+    statement: >
+      Fill density is verified by determining mass per unit area on conditioned
+      specimens of defined size; ISO 9073-1 and equivalent methods define the
+      determination but set no acceptance limits.
+    plain: >
+      This test weighs a known area of batting to check it contains as much material
+      as the supplier says. The method standards say how to weigh it, not what counts
+      as acceptable.
+    scope: "Mass per unit area; acceptance limits come from product standards or contract"
+    sources: [iso-9073-1]
+
+  - id: t13-anchors
+    section: Test 1.3 — Fill Density
+    statement: >
+      Published numeric anchors for filling-mass tolerance sit close together across
+      jurisdictions: T/CTCA 10-2021 allows ±3.0% mass-per-unit-area deviation for
+      composite wadding, GB/T 14272-2021 sets a filling-weight lower bound of −5.0%
+      of declared for down garments, and GB/T 24252-2019 a −2.0% lower bound for
+      silk-quilt filling mass.
+    plain: >
+      Different countries' standards allow the fill weight to fall short of the
+      declared figure by somewhere between 2% and 5%.
+    scope: "Each figure applies to its own product category, not to down batting directly"
+    sources: [tctca-10, gbt-14272, gbt-24252]
+    audiences: [industry, technical]
+
+  - id: t13-eu-tolerance
+    section: Test 1.3 — Fill Density
+    statement: >
+      A ±5% filling-mass tolerance is described as European filled-article practice on
+      an EN 13088 basis.
+    plain: >
+      European practice allows the filling weight to vary by about 5% either way.
+    scope: "Attributed in the source draft to IDFL without naming a publication"
+    sources: [gbt-14272]
+    status: withheld
+    audiences: [industry, technical]
+
+  - id: t13-declare-method
+    section: Test 1.3 — Fill Density
+    statement: >
+      A specification should state the declared mass per unit area, its tolerance, and
+      the method by which it will be verified, since the tolerance is meaningless
+      without the method that measures it.
+    plain: >
+      Say three things in the contract: the weight, how much it may vary, and which
+      test will check it.
+    scope: "Buyer specification practice"
+    sources: [iso-9073-1, tctca-10]
+
+  # ============================ TEST 1.4 ====================================
+  - id: t14-what
+    section: Test 1.4 — Loft / Thickness
+    statement: >
+      Loft is the thickness of the batting measured under a defined light load; ISO
+      9073-2 specifies a bulky-nonwoven apparatus measuring at 0.02 kPa, distinct from
+      the higher pressure used for normal nonwovens.
+    plain: >
+      Loft is how thick the batting is, measured under a very light weight. Bulky
+      materials like batting are measured at a much lower pressure than ordinary
+      fabrics.
+    scope: "ISO 9073-2 bulky-nonwoven apparatus"
+    sources: [iso-9073-2]
+
+  - id: t14-pressure-in-specs
+    section: Test 1.4 — Loft / Thickness
+    statement: >
+      A thickness figure is only interpretable alongside the pressure at which it was
+      measured, so a specification should state the measurement pressure with the
+      thickness requirement.
+    plain: >
+      A thickness number means nothing on its own. Always write down the pressure it
+      was measured at.
+    scope: "Specification wording; the pressure is part of the requirement"
+    sources: [iso-9073-2, astm-d5736]
+
+  - id: t14-withdrawn-methods
+    section: Test 1.4 — Loft / Thickness
+    statement: >
+      ASTM D5736 was withdrawn in 2008 without replacement yet still appears on current
+      manufacturer datasheets, so datasheet thickness figures should be read as
+      measured by a withdrawn method unless stated otherwise.
+    plain: >
+      One commonly quoted test was withdrawn in 2008 but still appears on datasheets.
+      Treat those numbers with care.
+    scope: "Manufacturer datasheets citing ASTM D5736"
+    sources: [astm-d5736, 3m-fl600]
+    audiences: [industry, technical]
+
+  - id: t14-bulkiness-ladder
+    section: Test 1.4 — Loft / Thickness
+    statement: >
+      GB/T 14272-2021 sets down-garment bulkiness minimums graded by down-cluster
+      content, determined by a steam-conditioned cylinder method.
+    plain: >
+      China's down-garment standard sets minimum bulkiness figures that rise with the
+      proportion of down cluster in the fill.
+    scope: >
+      Annex letter and numeric values UNCONFIRMED — an accredited laboratory report
+      indicates the requirement sits in Annex C at a different value from the one the
+      draft printed, so no figure is published here
+    sources: [gbt-14272]
+    status: withheld
+
+  - id: t14-editions
+    section: Test 1.4 — Loft / Thickness
+    statement: >
+      Bulkiness results obtained under different editions of the same standard are not
+      comparable, so the edition year must be recorded with any bulkiness figure.
+    plain: >
+      Results from different versions of the same standard cannot be compared. Always
+      record which version was used.
+    scope: "GB/T 14272 editions; the direction and size of the offset is unconfirmed"
+    sources: [gbt-14272]
+
+  - id: t14-loft-predicts
+    section: Test 1.4 — Loft / Thickness
+    topic: "can loft substitute for a measured thermal resistance"
+    stance: supports
+    statement: >
+      Modelling of down quilts identifies fill power and fill weight as the dominant
+      drivers of thermal resistance, ahead of quilting density, with shell fabric least
+      influential — so a loft shortfall is an early warning of a thermal shortfall.
+    plain: >
+      How much down there is and how well it lofts matter more for warmth than how the
+      quilt is stitched. So if loft is low, warmth is probably low too.
+    scope: "Modelling of down quilts; fill power and fill weight as modelled variables"
+    sources: [zheng-2024]
+
+  - id: t14-loft-does-not-predict
+    section: Test 1.4 — Loft / Thickness
+    topic: "can loft substitute for a measured thermal resistance"
+    stance: refutes
+    statement: >
+      Under dynamic compression, loft loss and thermal-resistance loss correlate poorly,
+      so a loft measurement cannot stand in for a measured thermal resistance where
+      warmth is contractual.
+    plain: >
+      When batting is squashed repeatedly, losing thickness and losing warmth do not
+      track each other. If warmth is written into the contract, measure warmth.
+    scope: "High-loft nonwoven insulation under dynamic compression"
+    sources: [glombikova-2020]
+
+  # ============================ TEST 1.5 ====================================
+  - id: t15-what
+    section: Test 1.5 — Thermal Resistance
+    statement: >
+      Thermal resistance is measured directly as Rct on a sweating guarded hotplate
+      under ISO 11092 or ASTM F1868; both are method standards and neither sets an
+      acceptance limit.
+    plain: >
+      Warmth is measured on a heated plate that mimics skin. The standards say how to
+      measure it, not how warm is warm enough.
+    scope: "Steady-state measurement; no acceptance limits in either standard"
+    sources: [iso-11092, astm-f1868]
+
+  - id: t15-units
+    section: Test 1.5 — Thermal Resistance
+    statement: >
+      Thermal resistance is reported in three interchangeable units: 1 clo equals
+      0.155 K·m²/W per ASTM F1868, and 1 tog equals 0.1 m²·K/W.
+    plain: >
+      Warmth is quoted in clo, tog, or SI units. One clo is 0.155 K·m²/W and one tog
+      is 0.1 m²·K/W, so any figure can be converted to any other.
+    scope: "Unit definitions; the tog is the BS 4745 unit"
+    sources: [astm-f1868]
+    audiences: [industry, technical]
+
+  - id: t15-no-numeric-requirement
+    section: Test 1.5 — Thermal Resistance
+    statement: >
+      No wadding or down product standard reviewed sets a numeric Rct requirement;
+      warmth is regulated indirectly through loft, fill power, and recovery.
+    plain: >
+      No product standard says how warm batting must be. Warmth is controlled
+      indirectly, through thickness and fill quality instead.
+    scope: "Standards reviewed as of August 2026"
+    sources: [iso-11092, gbt-14272, gbt-24252]
+
+  - id: t15-specify-edition
+    section: Test 1.5 — Thermal Resistance
+    statement: >
+      An Rct figure should be reported with the method edition and the thickness at
+      test, and products compared per unit weight rather than in absolute terms.
+    plain: >
+      Always record which version of the test was used and how thick the sample was,
+      and compare products at the same weight.
+    scope: "ISO 11092 exists in a 2026 edition superseding 2014"
+    sources: [iso-11092]
+
+  - id: t15-humidity
+    section: Test 1.5 — Thermal Resistance
+    statement: >
+      Down thermal conductivity rises by roughly 50% as relative humidity approaches
+      saturation, with a corresponding fall in compression recovery.
+    plain: >
+      As the air gets very damp, down conducts heat about half as much again — meaning
+      it insulates worse — and springs back less well.
+    scope: "Relative humidity approaching 95%; laboratory conditions"
+    sources: [yu-2026]
+
+  - id: t15-moisture-loss
+    section: Test 1.5 — Thermal Resistance
+    statement: >
+      Battings lose a substantial fraction of their dry insulation value at high
+      moisture content.
+    plain: >
+      Wet batting insulates far worse than dry batting.
+    scope: >
+      A published range exists for 50 wt% moisture but is not printed here — the
+      source is a 600-page edited volume cited without chapter or page, so the figure
+      cannot be checked
+    sources: [yu-2026]
+    status: withheld
+
+  - id: t15-laundering-benchmark
+    section: Test 1.5 — Thermal Resistance
+    statement: >
+      A manufacturer-published benchmark for a synthetic down-alternative reports
+      changes averaging less than ±0.2 clo and ±0.2 cm after ten launderings; down
+      batting will not necessarily match it.
+    plain: >
+      One synthetic insulation publishes very little change in warmth or thickness
+      after ten washes. This shows what is achievable — it is not a target for down.
+    scope: "Manufacturer figures, not independently verified; synthetic fill, not down"
+    sources: [3m-fl600, kim-2018]
+    audiences: [industry, technical]
+
+  # ==================== How to read the thresholds ==========================
+  - id: meta-tiers
+    section: How to read the thresholds
+    statement: >
+      Every threshold in this guide carries its evidence tier at the point of use:
+      peer-reviewed findings, regulator or standards-body requirements, institutional
+      publications, and industry practice are distinguished rather than presented as
+      a single class of authority.
+    plain: >
+      Next to every number, this guide tells you where it came from — a study, an
+      official standard, or common industry practice.
+    scope: "Applies to every numeric claim in this guide"
+    sources: [astm-d6571, iso-9073-2]
+
+  - id: meta-withheld
+    section: How to read the thresholds
+    statement: >
+      Where a figure could not be confirmed from the source text, the claim is
+      published with the figure withheld rather than printed at a lower confidence.
+    plain: >
+      If a number could not be checked, this guide says so and leaves the number out
+      instead of printing it anyway.
+    scope: "Applies to claims marked as withheld"
+    sources: [gbt-14272]
+
+  - id: meta-registered
+    section: How to read the thresholds
+    statement: >
+      Standards are sold rather than published openly, so they are cited by
+      designation and edition together with a record of where the controlled copy is
+      held; such a citation is auditable by a person even though no automated check
+      can follow it.
+    plain: >
+      Standards cost money and are not on the open web, so this guide names the exact
+      standard and edition and records who holds the purchased copy.
+    scope: "Applies to every standards citation in this guide"
+    sources: [iso-9073-1, astm-d6571]
+    audiences: [industry, technical]

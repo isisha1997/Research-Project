@@ -66,7 +66,7 @@ class TestCitationGate(GateTestCase):
     def test_a_source_with_no_locator_blocks_publication(self):
         g = guide(sources=[source("s1", doi=None, url=None)])
         errors = self.assertBlocks(g, Gate.CITATIONS, "s1")
-        self.assertIn("neither a DOI nor a URL", errors[0].message)
+        self.assertIn("neither a DOI, a URL, nor a standards designation", errors[0].message)
 
     def test_a_malformed_url_blocks_publication(self):
         g = guide(sources=[source("s1", doi=None, url="ftp://example.org/x")])
@@ -129,6 +129,65 @@ class TestCitationGate(GateTestCase):
         resolver = FakeResolver({"example.org": ("", "404")})
         g = guide(sources=[source("s1", doi=None, url="https://example.org/gone")])
         self.assertBlocks(g, Gate.CITATIONS, "s1", resolver=resolver)
+
+
+class TestRegisteredSources(GateTestCase):
+    """Paywalled standards: identified by number, resolvable by no machine."""
+
+    def registered(self, **overrides):
+        data = {"id": "s1", "tier": "regulator", "title": "Standard test method",
+                "designation": "ASTM D6571-22", "held": "MII register, 2026-03"}
+        data.update(overrides)
+        return guide(sources=[data])
+
+    def test_a_designation_is_not_treated_as_a_locator(self):
+        g = self.registered()
+        self.assertIsNone(g.sources["s1"].locator)
+        self.assertTrue(g.sources["s1"].is_registered)
+
+    def test_a_held_standard_publishes_without_being_machine_checkable(self):
+        report = verify(self.registered())
+        self.assertTrue(report.publishable)
+        self.assertEqual(report.resolutions["s1"].status, "registered")
+
+    def test_a_standard_with_no_custody_trail_blocks_publication(self):
+        errors = self.assertBlocks(self.registered(held=None), Gate.CITATIONS, "s1")
+        self.assertIn("where the controlled copy is held", errors[0].message)
+
+    def test_a_registered_source_is_never_sent_over_the_network(self):
+        resolver = FakeResolver({})
+        verify(self.registered(), resolver)
+        self.assertEqual(resolver.calls, [])
+
+    def test_a_designation_alongside_a_doi_is_not_registered(self):
+        g = self.registered(doi="10.1000/abc")
+        self.assertFalse(g.sources["s1"].is_registered)
+
+    def test_registered_sources_are_not_asked_for_an_accessed_date(self):
+        report = verify(self.registered(accessed=None))
+        self.assertFalse(any("accessed" in f.message for f in report.infos))
+
+    def test_the_summary_counts_registered_sources(self):
+        self.assertEqual(verify(self.registered()).summary()["registered_sources"], 1)
+
+
+class TestWithheldClaims(GateTestCase):
+    """The guide's own rule: print no figure until it is confirmed."""
+
+    def test_a_withheld_claim_publishes_and_is_counted(self):
+        g = guide(claims=[claim("c1", status="withheld")])
+        report = verify(g)
+        self.assertTrue(report.publishable)
+        self.assertEqual(report.summary()["withheld_claims"], 1)
+        self.assertTrue(any("figure withheld" in f.message for f in report.infos))
+
+    def test_an_unknown_status_is_rejected(self):
+        with self.assertRaises(ValueError) as ctx:
+            guide(claims=[claim("c1", status="maybe")])
+        self.assertIn("withheld", str(ctx.exception))
+
+    def test_claims_default_to_published(self):
+        self.assertEqual(verify(guide()).summary()["withheld_claims"], 0)
 
 
 class TestTieringGate(GateTestCase):

@@ -58,6 +58,11 @@ class TestSource(unittest.TestCase):
         s = Source.from_dict(source("s1", authors=["A", "B", "C", "D"]))
         self.assertIn("A et al.", s.citation())
 
+    def test_an_et_al_author_does_not_produce_a_double_period(self):
+        s = Source.from_dict(source("s1", authors=["Glombikova, V.", "B", "C", "D"]))
+        self.assertIn("Glombikova, V. et al. (", s.citation())
+        self.assertNotIn("..", s.citation())
+
     def test_citation_handles_missing_year(self):
         s = Source.from_dict(source("s1", year=None))
         self.assertIn("(n.d.)", s.citation())

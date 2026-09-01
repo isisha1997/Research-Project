@@ -127,6 +127,42 @@ claims:
     audiences: [public, industry, technical]
 ```
 
+### Standards, which no machine can resolve
+
+A paywalled standard has a number, not a URL. ISO sells ISO 9073-2; there is nothing
+to resolve. Such a source is cited by `designation` plus `held` — the record of where
+the organisation's controlled copy is:
+
+```yaml
+  - id: iso-9073-2
+    tier: regulator
+    designation: "ISO 9073-2:1995"
+    title: "Textiles — Test methods for nonwovens — Part 2: Determination of thickness"
+    held: "MII standards register — purchased 2026-03"
+```
+
+A designation is deliberately **not** treated as a locator, so the guide never claims
+the citation was machine-checked. Instead the citation gate requires `held`: a source
+no machine can follow must at least say who holds the text, so a person can still get
+to it. **An unresolvable source with no custody trail is not a citation; it is a claim
+about a citation**, and the gate blocks it.
+
+### Withholding a figure
+
+Where a value cannot be confirmed from the source text, publish the claim and withhold
+the number rather than printing it at lower confidence:
+
+```yaml
+  - id: t14-bulkiness-ladder
+    statement: "GB/T 14272-2021 sets down-garment bulkiness minimums by down-cluster content."
+    scope: "Annex letter and values UNCONFIRMED — no figure is published here"
+    sources: [gbt-14272]
+    status: withheld
+```
+
+The reader sees the claim, marked *figure withheld pending confirmation*, and the
+report counts withheld claims so they cannot be quietly forgotten.
+
 ### Evidence tiers
 
 `peer_reviewed` › `regulator` › `institutional` › `industry_lca` › `trade_press` › `company`
@@ -194,7 +230,7 @@ marked *not yet checked online*.
 python -m unittest discover -s tests -t tests
 ```
 
-186 tests, no third-party test dependency. Network access is faked in tests, so the
+202 tests, no third-party test dependency. Network access is faked in tests, so the
 suite runs offline and deterministically.
 
 ### Layout
@@ -209,8 +245,8 @@ mii_guide/
   audit.py     citation audit for documents this pipeline did not build
   render.py    Markdown and HTML output in MII brand colours
   cli.py       verify / build / new / sources / audit
-guides/        guide specs
-tests/         186 tests
+guides/        guide specs (recycled polyester; Material 1b down batting)
+tests/         202 tests
 .claude/skills/material-education-guide/   Claude Code skill wrapper
 ```
 
