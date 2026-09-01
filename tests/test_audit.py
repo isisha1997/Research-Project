@@ -99,6 +99,58 @@ class TestExtractors(ExtractTestCase):
         self.assertIn("https://example.org/study", result.linked_urls)
         self.assertTrue(result.is_complete)
 
+    def test_docx_footnotes_endnotes_and_comments_are_all_read(self):
+        # Citations live in footnotes as often as in body text, and in a document
+        # under review they live in the comments. Reading only the body returned
+        # "no references found" on a document full of them.
+        path = self.root / "a.docx"
+        def para(text):
+            return f"<w:p><w:r><w:t>{text}</w:t></w:r></w:p>"
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("word/document.xml",
+                       f"<w:document><w:body>{para('Body prose here.')}</w:body></w:document>")
+            z.writestr("word/footnotes.xml",
+                       f"<w:footnotes>{para('Footnote cite 10.1000/foot')}</w:footnotes>")
+            z.writestr("word/endnotes.xml",
+                       f"<w:endnotes>{para('Endnote cite 10.1000/end')}</w:endnotes>")
+            z.writestr("word/comments.xml",
+                       f"<w:comments>{para('Reviewer suggests 10.1000/comment')}</w:comments>")
+            z.writestr("word/header1.xml",
+                       f"<w:hdr>{para('See 10.1000/header')}</w:hdr>")
+        found = {r.raw: r.part for r in find_references(extract(path))}
+        self.assertEqual(set(found), {"10.1000/foot", "10.1000/end",
+                                      "10.1000/comment", "10.1000/header"})
+        # Where a citation lives is part of the finding: a DOI a reviewer proposed
+        # in a comment is not a citation the document makes.
+        self.assertEqual(found["10.1000/comment"], "comments")
+        self.assertEqual(found["10.1000/foot"], "footnotes")
+
+    def test_docx_records_which_parts_it_read(self):
+        path = self.root / "a.docx"
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("word/document.xml",
+                       "<w:document><w:body><w:p><w:r><w:t>Body.</w:t>"
+                       "</w:r></w:p></w:body></w:document>")
+            z.writestr("word/comments.xml",
+                       "<w:comments><w:p><w:r><w:t>A note.</w:t></w:r></w:p></w:comments>")
+        result = extract(path)
+        self.assertIn("body", result.note)
+        self.assertIn("comments", result.note)
+        self.assertIn("[comments]", result.text)
+
+    def test_docx_hyperlinks_in_footnotes_are_captured_too(self):
+        path = self.root / "a.docx"
+        rels = ('<Relationships><Relationship Id="rId1" '
+                'Target="https://example.org/foot" TargetMode="External"/></Relationships>')
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("word/document.xml",
+                       "<w:document><w:body><w:p><w:r><w:t>Body.</w:t>"
+                       "</w:r></w:p></w:body></w:document>")
+            z.writestr("word/footnotes.xml",
+                       "<w:footnotes><w:p><w:r><w:t>see study</w:t></w:r></w:p></w:footnotes>")
+            z.writestr("word/_rels/footnotes.xml.rels", rels)
+        self.assertIn("https://example.org/foot", extract(path).linked_urls)
+
     def test_docx_paragraphs_become_separate_lines(self):
         path = self.root / "a.docx"
         document = ('<w:document><w:body>'
@@ -107,7 +159,10 @@ class TestExtractors(ExtractTestCase):
                     '</w:body></w:document>')
         with zipfile.ZipFile(path, "w") as z:
             z.writestr("word/document.xml", document)
-        self.assertEqual(find_references(extract(path))[0].line, 2)
+        # Line numbers index the extracted text, which opens with a "[body]" marker.
+        found = find_references(extract(path))[0]
+        self.assertEqual(found.line, 3)
+        self.assertEqual(found.part, "body")
 
     def test_a_zip_that_is_not_a_docx_is_rejected_clearly(self):
         path = self.root / "a.docx"
@@ -261,6 +316,32 @@ class TestAudit(ExtractTestCase):
         self.assertTrue(flags)
         self.assertEqual(flags[0].severity, "info")
         self.assertTrue(report.clean)  # a heuristic flag never blocks
+
+    def test_figures_inside_word_comments_are_not_flagged(self):
+        # Comments are annotations about the text, not the text. Flagging a
+        # reviewer's own note for citing nothing is noise.
+        path = self.root / "a.docx"
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("word/document.xml",
+                       "<w:document><w:body><w:p><w:r><w:t>Plain prose, no numbers.</w:t>"
+                       "</w:r></w:p></w:body></w:document>")
+            z.writestr("word/comments.xml",
+                       "<w:comments><w:p><w:r><w:t>Reviewer: the 45 percent figure here "
+                       "needs a source before publication.</w:t></w:r></w:p></w:comments>")
+        report = audit(path, CitationResolver(online=False))
+        self.assertFalse(any("figure appears" in f.message for f in report.heuristics))
+
+    def test_figures_in_footnotes_are_still_flagged(self):
+        path = self.root / "a.docx"
+        with zipfile.ZipFile(path, "w") as z:
+            z.writestr("word/document.xml",
+                       "<w:document><w:body><w:p><w:r><w:t>Body.</w:t>"
+                       "</w:r></w:p></w:body></w:document>")
+            z.writestr("word/footnotes.xml",
+                       "<w:footnotes><w:p><w:r><w:t>Emissions fall by 45 percent across "
+                       "the whole supply chain in every scenario.</w:t></w:r></w:p></w:footnotes>")
+        report = audit(path, CitationResolver(online=False))
+        self.assertTrue(any("figure appears" in f.message for f in report.heuristics))
 
     def test_a_figure_near_a_citation_is_not_flagged(self):
         body = ("Emissions fall by 45 percent under this boundary.\n"

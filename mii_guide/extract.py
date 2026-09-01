@@ -21,6 +21,9 @@ from pathlib import Path
 # punctuation is stripped afterwards, since "...10.1000/abc." is one sentence,
 # not a DOI ending in a period.
 DOI_PATTERN = re.compile(r"\b10\.\d{4,9}/[^\s\"'<>,;\]}]+", re.IGNORECASE)
+# Multi-part documents are joined with a "[part]" marker line so a reference can
+# be reported as coming from the body, a footnote, or a reviewer's comment.
+PART_MARKER = re.compile(r"^\[([a-z0-9_]+)\]$")
 URL_PATTERN = re.compile(r"https?://[^\s\"'<>()\[\]{}]+", re.IGNORECASE)
 TRAILING_PUNCT = ".,;:)]}>'\""
 
@@ -56,6 +59,7 @@ class Reference:
     context: str       # the line it appeared on, for reporting the location
     from_hyperlink: bool = False
     block: str = ""    # surrounding lines, since reference entries wrap
+    part: str = ""     # which part of the document it came from (body, footnotes, comments)
 
     @property
     def key(self) -> str:
@@ -91,10 +95,16 @@ def find_references(extracted: Extracted) -> list[Reference]:
         """The reference entry as a human sees it, not as the file wrapped it."""
         return " ".join(lines[max(0, index - 3):index + 2])
 
+    part = ""
     for lineno, line in enumerate(lines, 1):
+        marker = PART_MARKER.match(line.strip())
+        if marker:
+            part = marker.group(1)
+            continue
         block = window(lineno - 1)
         for match in DOI_PATTERN.finditer(line):
-            _add(references, seen, _clean(match.group()), "doi", lineno, line, block=block)
+            _add(references, seen, _clean(match.group()), "doi", lineno, line,
+                 block=block, part=part)
         for match in URL_PATTERN.finditer(line):
             url = _clean(match.group())
             # A doi.org link is a DOI; recording it as both would double-count it.
@@ -102,14 +112,15 @@ def find_references(extracted: Extracted) -> list[Reference]:
                 inner = DOI_PATTERN.search(url)
                 if inner:
                     _add(references, seen, _clean(inner.group()), "doi", lineno, line,
-                         block=block)
+                         block=block, part=part)
                 else:
                     # A doi.org link whose path is not a DOI is a broken reference,
                     # not a web page; recording it as a URL would let it pass as live.
                     tail = url.split("doi.org/", 1)[1] or url
-                    _add(references, seen, tail, "doi", lineno, line, block=block)
+                    _add(references, seen, tail, "doi", lineno, line, block=block,
+                         part=part)
                 continue
-            _add(references, seen, url, "url", lineno, line, block=block)
+            _add(references, seen, url, "url", lineno, line, block=block, part=part)
 
     for url in extracted.linked_urls:
         url = _clean(url)
@@ -122,7 +133,8 @@ def find_references(extracted: Extracted) -> list[Reference]:
     return references
 
 
-def _add(refs, seen, raw, kind, line, context, from_hyperlink=False, block="") -> None:
+def _add(refs, seen, raw, kind, line, context, from_hyperlink=False, block="",
+         part="") -> None:
     if not raw:
         return
     key = (kind, raw.lower())
@@ -130,7 +142,7 @@ def _add(refs, seen, raw, kind, line, context, from_hyperlink=False, block="") -
         return
     seen.add(key)
     refs.append(Reference(raw, kind, line, context.strip()[:300], from_hyperlink,
-                          (block or context).strip()[:1200]))
+                          (block or context).strip()[:1200], part))
 
 
 def _clean(value: str) -> str:
@@ -148,33 +160,73 @@ def _extract_html(path: Path) -> Extracted:
 
 
 def _extract_docx(path: Path) -> Extracted:
-    """Word documents are a zip of XML. Text lives in w:t; links live in the rels."""
+    """Word documents are a zip of XML, and the body is only one part of it.
+
+    Citations live in footnotes and endnotes as often as in body text, and in a
+    document under review they live in the comments. Reading only
+    word/document.xml returns "no references found" on a document full of them,
+    which is the worst possible failure for an audit: a confident clean result.
+    """
     try:
         with zipfile.ZipFile(path) as archive:
-            names = set(archive.namelist())
+            names = archive.namelist()
             if "word/document.xml" not in names:
                 raise ExtractionError(f"{path}: not a Word document (no word/document.xml)")
-            document = archive.read("word/document.xml").decode("utf-8", errors="replace")
-            rels = ""
-            if "word/_rels/document.xml.rels" in names:
-                rels = archive.read("word/_rels/document.xml.rels").decode("utf-8", errors="replace")
+
+            parts: list[tuple[str, str]] = [("body", "word/document.xml")]
+            for label, part in (("footnotes", "word/footnotes.xml"),
+                                ("endnotes", "word/endnotes.xml")):
+                if part in names:
+                    parts.append((label, part))
+            for part in sorted(n for n in names
+                               if re.fullmatch(r"word/(header|footer)\d*\.xml", n)):
+                parts.append((part.split("/")[-1].removesuffix(".xml"), part))
+            # Comments last: in a document under review they are annotations about
+            # the text, not the text, and the report should be able to say so.
+            if "word/comments.xml" in names:
+                parts.append(("comments", "word/comments.xml"))
+
+            chunks: list[str] = []
+            urls: list[str] = []
+            present: list[str] = []
+            for label, part in parts:
+                xml = archive.read(part).decode("utf-8", errors="replace")
+                body = _docx_text(xml)
+                if body.strip():
+                    present.append(label)
+                    chunks.append(f"[{label}]\n{body}")
+                rels_name = f"word/_rels/{part.split('/')[-1]}.rels"
+                if rels_name in names:
+                    urls.extend(_docx_rel_urls(
+                        archive.read(rels_name).decode("utf-8", errors="replace")))
     except zipfile.BadZipFile as exc:
         raise ExtractionError(f"{path}: not a readable .docx ({exc})") from exc
 
-    # Paragraph and line breaks become newlines so line numbers mean something.
-    text = re.sub(r"(?i)</w:p>", "\n", document)
+    return Extracted(
+        "\n".join(chunks), "docx",
+        note="read parts: " + ", ".join(present),
+        linked_urls=urls,
+    )
+
+
+def _docx_text(xml: str) -> str:
+    """Flatten Word XML to text, keeping paragraph breaks as newlines."""
+    text = re.sub(r"(?i)</w:p>", "\n", xml)
     text = re.sub(r"(?i)<w:(br|cr)\b[^>]*/?>", "\n", text)
     text = re.sub(r"(?s)<[^>]+>", "", text)
-    text = html.unescape(text)
+    return html.unescape(text)
 
-    # A hyperlink's target is in the relationships file, not the visible text, so
-    # a link whose display text reads "the study" is invisible without this.
-    linked = re.findall(
+
+def _docx_rel_urls(rels: str) -> list[str]:
+    """Hyperlink targets live in the relationships file, not the visible text.
+
+    A link whose display text reads only "the study" is invisible without this.
+    """
+    found = re.findall(
         r'Target="([^"]+)"[^>]*TargetMode="External"|TargetMode="External"[^>]*Target="([^"]+)"',
         rels,
     )
-    urls = [a or b for a, b in linked]
-    return Extracted(text, "docx", linked_urls=[html.unescape(u) for u in urls])
+    return [html.unescape(a or b) for a, b in found]
 
 
 def _extract_pdf(path: Path) -> Extracted:

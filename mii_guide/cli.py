@@ -231,7 +231,8 @@ def _print_audit(report, facts_only: bool) -> None:
     for finding in report.findings:
         if facts_only and finding.kind != "fact":
             continue
-        location = f" (line {finding.line})" if finding.line else ""
+        where = [p for p in (finding.part, f"line {finding.line}" if finding.line else "") if p]
+        location = f" ({', '.join(where)})" if where else ""
         print(f"  {finding}{location}")
         if finding.hint and finding.severity != "info":
             print(f"        → {finding.hint}")

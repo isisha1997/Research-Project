@@ -22,7 +22,7 @@ from pathlib import Path
 from typing import Any
 from urllib.parse import urlparse
 
-from .extract import Extracted, Reference, extract, find_references
+from .extract import PART_MARKER, Extracted, Reference, extract, find_references
 from .models import Source, SourceTier
 from .resolve import CitationResolver, Resolution, title_similarity
 
@@ -62,11 +62,13 @@ class AuditFinding:
     subject: str | None = None
     line: int | None = None
     hint: str | None = None
+    part: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "severity": self.severity, "kind": self.kind, "subject": self.subject,
-            "line": self.line, "message": self.message, "hint": self.hint,
+            "line": self.line, "part": self.part, "message": self.message,
+            "hint": self.hint,
         }
 
     def __str__(self) -> str:
@@ -136,7 +138,7 @@ class AuditReport:
             "findings": [f.to_dict() for f in self.findings],
             "references": [
                 {
-                    "raw": r.raw, "kind": r.kind, "line": r.line,
+                    "raw": r.raw, "kind": r.kind, "line": r.line, "part": r.part,
                     "from_hyperlink": r.from_hyperlink,
                     "inferred_tier": (self.inferred_tiers.get(r.key).name.lower()
                                       if self.inferred_tiers.get(r.key) else None),
@@ -193,7 +195,7 @@ def _check_references(references, report, resolver) -> list[AuditFinding]:
             findings.append(AuditFinding(
                 "error", "fact", f"{reference.raw} is not a well-formed reference",
                 reference.raw, reference.line or None,
-                hint="correct the DOI or URL in the document",
+                hint="correct the DOI or URL in the document", part=reference.part,
             ))
         elif resolution.status == "not_found":
             findings.append(AuditFinding(
@@ -201,13 +203,14 @@ def _check_references(references, report, resolver) -> list[AuditFinding]:
                 ("this DOI does not exist in Crossref - the reference may be fabricated"
                  if reference.kind == "doi" else "this URL returns 404"),
                 reference.raw, reference.line or None,
-                hint="find the real reference, or remove the citation",
+                hint="find the real reference, or remove the citation", part=reference.part,
             ))
         elif resolution.status == "unreachable":
             findings.append(AuditFinding(
                 "warn", "fact", f"could not be checked: {resolution.detail}",
                 reference.raw, reference.line or None,
                 hint="re-run when the network allows, or confirm the source by hand",
+                part=reference.part,
             ))
         elif resolution.status == "resolved" and resolution.registry_title:
             mismatch = _title_mismatch(reference, resolution)
@@ -218,7 +221,7 @@ def _check_references(references, report, resolver) -> list[AuditFinding]:
                     f"resolves to (registry title: {resolution.registry_title!r})",
                     reference.raw, reference.line or None,
                     hint="a DOI copied from the wrong row of a reference list looks "
-                         "exactly like this; confirm the pairing",
+                         "exactly like this; confirm the pairing", part=reference.part,
                 ))
 
     resolver.save_cache()
@@ -252,8 +255,18 @@ def _flag_unsourced_figures(extracted: Extracted, references) -> list[AuditFindi
     cited_lines = {r.line for r in references if r.line}
     nearby = {line + offset for line in cited_lines for offset in (-2, -1, 0, 1, 2)}
     findings: list[AuditFinding] = []
+    # Only the document's own prose. Comments are annotations *about* the text,
+    # so flagging a reviewer's note for citing no source is noise.
+    prose_parts = {"", "body", "footnotes", "endnotes"}
+    part = ""
 
     for lineno, line in enumerate(extracted.text.splitlines(), 1):
+        marker = PART_MARKER.match(line.strip())
+        if marker:
+            part = marker.group(1)
+            continue
+        if part not in prose_parts:
+            continue
         if lineno in nearby or not FIGURE_PATTERN.search(line):
             continue
         stripped = line.strip()
@@ -262,7 +275,7 @@ def _flag_unsourced_figures(extracted: Extracted, references) -> list[AuditFindi
         findings.append(AuditFinding(
             "info", "heuristic",
             f"a figure appears with no citation within two lines: {stripped[:120]!r}",
-            line=lineno,
+            line=lineno, part=part,
             hint="confirm the number is sourced; numbers travel further than caveats",
         ))
 
