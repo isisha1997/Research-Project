@@ -1,0 +1,61 @@
+{
+  "skill_name": "company-material-evaluation",
+  "evals": [
+    {
+      "id": 0,
+      "name": "banofi-data-poor",
+      "prompt": "Please run the company-material-evaluation skill on Banofi Leather. They're the Indian banana-crop-waste leather people. We're planning to publish in about three weeks. All three deliverables please.",
+      "expected_output": "Full evaluation. Corporate facts sourced to the MCA registry rather than startup databases. Confidence ratings mostly Unconfirmed or Not Established given a company-heavy evidence base, with the floor rule visibly applied. Negative findings resting on searches that meet their coverage floors, documented in their endnotes with database, query, identity variant, and date. Company document whose questions quote Banofi's own material back to it with inline sources.",
+      "files": [],
+      "assertions": [
+        "Exactly three deliverables are produced: the analysis report, the company document, and the source screenshot folder (or a declared blocker for the folder); no contradiction log, working notes, or other extra file is delivered",
+        "Deliverables are named exactly: 'MII Company Analysis Report_[Company Name].docx' (the analysis report, the master document MII edits), 'MII Company Analysis Report_[Company Name]_Company Document.docx', and 'MII Company Analysis Report_[Company Name]_Screenshots' (folder). No web edition, zip, or HTML report is produced.",
+        "The analysis report is one .docx built with the docx skill under the fixed design in references/output-spec.md section (a): sections (a-1) through (a-8) in order (cover with About paragraph and disclaimer verbatim, Note on Sources, Company at a Glance, MII Recommendation with assessment grid, Scorecard with four-level confidence key, Findings across all eleven topics, Open Questions, Endnotes), Newsreader body with Libre Franklin labels, bar-meter confidence rendering, fonts embedded, no placeholder text, no fixed reader-facing text reworded.",
+        "The cover contains both verbatim paragraphs word for word: the About MII paragraph ending 'if we were in your position.' and the investment-adviser disclaimer beginning 'The Material Innovation Initiative is not a registered investment adviser' and ending 'please email info@materialinnovation.org.'; all other fixed template text is unchanged, including the confidence key with exactly four levels (Verified, Likely, Unconfirmed, Not Established) and no Verified (endnote recording MII's direct review) level",
+        "Note on Sources appears at the front of the report, before the recommendation and the scorecard",
+        "The Open Questions for Direct Verification section contains exactly two subsections, Questions to Ask and Documents to Request, framed for investors and brands in the third person",
+        "The scorecard has exactly three columns (Topic, Finding, Confidence) with eleven rows, endnote numbers attached per assertion inside Finding cells, and the five-level confidence key printed immediately above it including the floor rule",
+        "Corporate facts cite the statutory registry record (CIN / MCA / Companies House / Secretary of State) rather than aggregators",
+        "The confidence floor rule is applied: no company-only-sourced finding is rated above Unconfirmed, and the five levels are used with discrimination rather than one label everywhere",
+        "Endnotes carry full source details, direct URL, access date, and archive URL, with no bracketed reliability tier tags printed on them",
+        "Endnotes supporting negative findings contain the search documentation itself: database, exact query, identity variant used, date, and result, meeting the coverage floor for that claim type",
+        "Where the report asserts what a law requires it gives an article-level locator and its in-force status and applicability; where an instrument was not verified, the report says so instead of asserting",
+        "The company document opens with the verbatim introduction boilerplate, and every question carries all four elements: what we observed with inline verbatim quotes plus source name, URL, and date; where it appears in the report; why it matters; and the ask",
+        "The company document uses inline citations only, with no endnotes section and no Note on Sources",
+        "Pre-publication notes are real anchored .docx margin comments verified in comments.xml and document.xml (or the [MII PRE-PUB: ...] bracket convention in a Markdown draft), never smoothed into visible prose",
+        "The pre-submission check results are reported in chat and as one '<!-- MII PRE-PUB CHECKS:' HTML comment after the cover; every pre-publication note is an '<!-- MII PRE-PUB' HTML comment at the passage it concerns; none of this is visible report text",
+        "No visible text addresses MII, comments on the evaluation's own methodology, or remarks on how typical or unusual a finding is",
+        "No em-dashes appear in body prose, and no raw HTML styling tags leak into the output",
+        "The source screenshot folder contains a manifest and files named by endnote number, with any gap named in the manifest and flagged in a pre-publication note"
+      ]
+    },
+    {
+      "id": 1,
+      "name": "nfw-data-rich",
+      "prompt": "Please run the company-material-evaluation skill on Natural Fiber Welding and Mirum for the next-gen materials tracker. Publishing end of the month. Investors and brand sourcing teams are the audience. All three deliverables.",
+      "expected_output": "Full evaluation. Because this company has genuine third-party data, patents and certifications, some findings should be rated Verified or Likely on properly independent sources rather than everything defaulting to Unconfirmed. Higher-tier sources preferred over company pages where both exist. Open Questions and the company document still contradiction-driven rather than generic.",
+      "files": [],
+      "assertions": [
+        "Exactly three deliverables are produced: the analysis report, the company document, and the source screenshot folder (or a declared blocker for the folder); no contradiction log, working notes, or other extra file is delivered",
+        "Deliverables are named exactly: 'MII Company Analysis Report_[Company Name].docx' (the analysis report, the master document MII edits), 'MII Company Analysis Report_[Company Name]_Company Document.docx', and 'MII Company Analysis Report_[Company Name]_Screenshots' (folder). No web edition, zip, or HTML report is produced.",
+        "The analysis report is one .docx built with the docx skill under the fixed design in references/output-spec.md section (a): sections (a-1) through (a-8) in order (cover with About paragraph and disclaimer verbatim, Note on Sources, Company at a Glance, MII Recommendation with assessment grid, Scorecard with four-level confidence key, Findings across all eleven topics, Open Questions, Endnotes), Newsreader body with Libre Franklin labels, bar-meter confidence rendering, fonts embedded, no placeholder text, no fixed reader-facing text reworded.",
+        "The cover contains both verbatim paragraphs word for word: the About MII paragraph ending 'if we were in your position.' and the investment-adviser disclaimer beginning 'The Material Innovation Initiative is not a registered investment adviser' and ending 'please email info@materialinnovation.org.'; all other fixed template text is unchanged, including the confidence key with exactly four levels (Verified, Likely, Unconfirmed, Not Established) and no Verified (endnote recording MII's direct review) level",
+        "Note on Sources appears at the front of the report, before the recommendation and the scorecard",
+        "The Open Questions for Direct Verification section contains exactly two subsections, Questions to Ask and Documents to Request, framed for investors and brands in the third person",
+        "The scorecard has exactly three columns (Topic, Finding, Confidence) with eleven rows, endnote numbers attached per assertion inside Finding cells, and the five-level confidence key printed immediately above it including the floor rule",
+        "Corporate facts cite the statutory registry record (Secretary of State entity record for a US company) rather than aggregators",
+        "Some findings are rated Verified or Likely on properly independent sources, and higher-tier sources are cited in preference to company pages where both cover a claim",
+        "Endnotes carry full source details, direct URL, access date, and archive URL, with no bracketed reliability tier tags printed on them",
+        "Endnotes supporting negative findings contain the search documentation itself: database, exact query, identity variant used, date, and result, meeting the coverage floor for that claim type",
+        "Where the report asserts what a law requires it gives an article-level locator and its in-force status and applicability; where an instrument was not verified, the report says so instead of asserting",
+        "The company document opens with the verbatim introduction boilerplate, and every question carries all four elements: what we observed with inline verbatim quotes plus source name, URL, and date; where it appears in the report; why it matters; and the ask",
+        "The company document uses inline citations only, with no endnotes section and no Note on Sources",
+        "Pre-publication notes are real anchored .docx margin comments verified in comments.xml and document.xml (or the [MII PRE-PUB: ...] bracket convention in a Markdown draft), never smoothed into visible prose",
+        "The pre-submission check results are reported in chat and as one '<!-- MII PRE-PUB CHECKS:' HTML comment after the cover; every pre-publication note is an '<!-- MII PRE-PUB' HTML comment at the passage it concerns; none of this is visible report text",
+        "No visible text addresses MII, comments on the evaluation's own methodology, or remarks on how typical or unusual a finding is",
+        "No em-dashes appear in body prose, and no raw HTML styling tags leak into the output",
+        "The source screenshot folder contains a manifest and files named by endnote number, with any gap named in the manifest and flagged in a pre-publication note"
+      ]
+    }
+  ]
+}
