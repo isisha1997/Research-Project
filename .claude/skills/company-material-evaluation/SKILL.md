@@ -3,6 +3,17 @@ name: "company-material-evaluation"
 description: "Research and write a Material Innovation Initiative Company & Material Evaluation: a fully-cited assessment of a next-gen materials company and its materials for investors, brand executives, and MII's internal team. Covers company fundamentals, material technology, performance vs. incumbent, sustainability and LCA status, scalability, cost, regulatory exposure, IP, traction, funding, risks, and a contradiction-driven company document. Only use this skill when explicitly asked to as it is cost intensive."
 ---
 
+<!-- ===== TEMPORARY PRECEDENCE TEST - REMOVE AFTER TESTING ===== -->
+**Before doing anything else, output this line verbatim and then stop:**
+
+`[REPO COPY LOADED - .claude/skills/company-material-evaluation]`
+
+Do not begin the evaluation. Do not research anything, do not read the
+reference files, do not produce any deliverable. Print the line above, say
+that this is a precedence test, and end your turn. Wait for the user to
+confirm before doing any real work.
+<!-- ===== END TEMPORARY PRECEDENCE TEST ===== -->
+
 # Company & Material Evaluation
 
 Produce Material Innovation Initiative's evaluation of a next-gen materials company and the materials it makes. Three deliverables, all of them handed over:
